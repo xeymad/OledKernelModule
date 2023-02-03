@@ -88,7 +88,8 @@ uint8_t ssd1306_interface_iic_write(uint8_t addr, uint8_t reg, uint8_t *buf, uin
 {
     uint8_t send[2];
     send[0] = reg;
-    for(int i=0;i<len;i++){
+    int i=0;
+    for(i=0;i<len;i++){
         send[1] = buf[i];
         if(i2c_master_send(ssd1306_client, (const char *)&send, 2) != 2)
             return 1;
