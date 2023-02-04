@@ -61,35 +61,6 @@ static struct i2c_driver ssd1306_driver = {
 static struct i2c_board_info oled_i2c_board_info = {
     I2C_BOARD_INFO(SLAVE_DEVICE_NAME, SSD1306_SLAVE_ADDR)};
 
-/********************************************************************************************/
-/* Module initialization function */
-static int __init ssd1306_module_init(void)
-{
-    int ret = -1;
-    ssd1306_adapter = i2c_get_adapter(I2C_BUS_AVAILABLE);
-    if (ssd1306_adapter != NULL)
-    {
-        ssd1306_client = i2c_new_client_device(ssd1306_adapter, &oled_i2c_board_info);
-        if (ssd1306_client != NULL)
-        {
-            i2c_add_driver(&ssd1306_driver);
-            ret = 0;
-        }
-        i2c_put_adapter(ssd1306_adapter);
-    }
-    pr_info("Driver for ssd1306 added.\n");
-    return ret;
-}
-
-/* Module exit function */
-static void __exit ssd1306_module_exit(void)
-{
-    ssd1306_basic_deinit();
-    i2c_unregister_device(ssd1306_client);
-    i2c_del_driver(&ssd1306_driver);
-    pr_info("SSD1306 Removed!!!\n");
-}
-
 // Thread
 static struct task_struct *thread_st;
 /* Function executed by kernel thread */
@@ -114,6 +85,36 @@ static int update_display(void *unused)
         mdelay(200);
     }
     return 0;
+}
+
+/********************************************************************************************/
+/* Module initialization function */
+static int __init ssd1306_module_init(void)
+{
+    int ret = -1;
+    ssd1306_adapter = i2c_get_adapter(I2C_BUS_AVAILABLE);
+    if (ssd1306_adapter != NULL)
+    {
+        ssd1306_client = i2c_new_client_device(ssd1306_adapter, &oled_i2c_board_info);
+        if (ssd1306_client != NULL)
+        {
+            i2c_add_driver(&ssd1306_driver);
+            ret = 0;
+        }
+        i2c_put_adapter(ssd1306_adapter);
+    }
+    pr_info("Driver for ssd1306 added.\n");
+    return ret;
+}
+
+/* Module exit function */
+static void __exit ssd1306_module_exit(void)
+{
+    kthread_stop(thread_st);
+    ssd1306_basic_deinit();
+    i2c_unregister_device(ssd1306_client);
+    i2c_del_driver(&ssd1306_driver);
+    pr_info("SSD1306 Removed!!!\n");
 }
 
 /* Function to initialize the SSD1306 OLED display */
