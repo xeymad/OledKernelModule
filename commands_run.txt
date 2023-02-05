@@ -1,6 +1,6 @@
 # INSMOD
-sudo insmod driver_ssd1306.ko
 sudo insmod driver_ssd1306_interface.ko
+sudo insmod driver_ssd1306.ko
 sudo insmod driver_ssd1306_basic.ko
 sudo insmod driver_ssd1306_advance.ko
 sudo insmod module_ssd1306.ko
