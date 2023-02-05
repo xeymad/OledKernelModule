@@ -59,10 +59,10 @@ extern "C"{
 #define SSD1306_BASIC_DEFAULT_PIN_CONF                         SSD1306_PIN_CONF_ALTERNATIVE               /**< set alternative */
 #define SSD1306_BASIC_DEFAULT_PHASE1_PERIOD                    0x01                                       /**< set phase 1 */
 #define SSD1306_BASIC_DEFAULT_PHASE2_PERIOD                    0x0F                                       /**< set phase F */
-#define SSD1306_BASIC_DEFAULT_OSCILLATOR_FREQUENCY             0x08                                       /**< set 8 */
-#define SSD1306_BASIC_DEFAULT_CLOCK_DIVIDE                     0x00                                       /**< set clock div 0 */
+#define SSD1306_BASIC_DEFAULT_OSCILLATOR_FREQUENCY             0x0F//0x08                                       /**< set 8 */
+#define SSD1306_BASIC_DEFAULT_CLOCK_DIVIDE                     0x00//0x00                                       /**< set clock div 0 */
 #define SSD1306_BASIC_DEFAULT_DISPLAY_OFFSET                   0x00                                       /**< set display offset */
-#define SSD1306_BASIC_DEFAULT_MULTIPLEX_RATIO                  0x3F                                       /**< set ratio */
+#define SSD1306_BASIC_DEFAULT_MULTIPLEX_RATIO                  0x3F//0x3F                                       /**< set ratio */
 #define SSD1306_BASIC_DEFAULT_DISPLAY_MODE                     SSD1306_DISPLAY_MODE_NORMAL                /**< set normal mode */
 #define SSD1306_BASIC_DEFAULT_SCAN_DIRECTION                   SSD1306_SCAN_DIRECTION_COMN_1_START        /**< set scan 1 */
 #define SSD1306_BASIC_DEFAULT_SEGMENT                          SSD1306_SEGMENT_COLUMN_ADDRESS_127         /**< set column 127 */

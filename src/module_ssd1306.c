@@ -69,20 +69,23 @@ static int update_display(void *unused)
     char str[100];
     struct rtc_time t;
     ssd1306_basic_clear();
+    int count = 0;
     while (!kthread_should_stop())
     {
         /* do your work */
         /* do your timer stuff here */
 
-        t = rtc_ktime_to_tm(ktime_get_real());
-        sprintf(str, "%ptRs", &t);
-
+        //t = rtc_ktime_to_tm(ktime_get_real());
+        //sprintf(str, "%ptRs", &t);
+        sprintf(str, "%d", count++);
         // sprintf(str, "Conteggio: %d\n", count);
         pr_info("%s", str);
         // ssd1306_basic_clear();
         // pr_info("%d",ssd1306_basic_string(0,15,str,strlen(str)+1,0xFFFF, SSD1306_FONT_12));
-        ssd1306_basic_string(0, 0, str, strlen(str), 1, SSD1306_FONT_12);
-        mdelay(200);
+        ssd1306_basic_string(0, 0, str, strlen(str), 0xFFFF, SSD1306_FONT_12);
+        //ssd1306_basic_string(0, 0, "ciao", 4, 1, SSD1306_FONT_12);
+        msleep(200);
+        //mdelay(200);
     }
     return 0;
 }

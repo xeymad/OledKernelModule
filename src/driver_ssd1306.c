@@ -242,15 +242,16 @@ static uint8_t a_ssd1306_gram_draw_point(ssd1306_handle_t *handle, uint8_t x, ui
     pos = y / 8;                              /* get y page */
     bx = y % 8;                               /* get y point */
     temp = 1 << bx;                           /* set data */
+    handle->gram[x][pos][1] = 1;
     if (data != 0)                            /* if 1  */
     {
-        handle->gram[x][pos] |= temp;         /* set 1 */
+        handle->gram[x][pos][0] |= temp;         /* set 1 */
     }
     else
     {
-        handle->gram[x][pos] &= ~temp;        /* set 0 */
+        handle->gram[x][pos][0] &= ~temp;        /* set 0 */
     }
-  
+
     return 0;                                 /* success return 0 */
 }
 
@@ -369,8 +370,9 @@ uint8_t ssd1306_clear(ssd1306_handle_t *handle)
         }
         for (n = 0; n < 128; n++)                                                                     /* write 128 */
         {
-            handle->gram[n][i] = 0x00;                                                                /* set black */
-            if (a_ssd1306_write_byte(handle, handle->gram[n][i], SSD1306_DATA) != 0)                  /* write data */
+            handle->gram[n][i][0] = 0x00;                                                             /* set black */
+            handle->gram[n][i][1] = 0x00;                                                             /* reset modified */
+            if (a_ssd1306_write_byte(handle, handle->gram[n][i][0], SSD1306_DATA) != 0)                  /* write data */
             {
                 handle->debug_print("ssd1306: write byte failed.\n");                                 /* write byte failed */
                 
@@ -381,6 +383,7 @@ uint8_t ssd1306_clear(ssd1306_handle_t *handle)
     
     return 0;                                                                                         /* success return 0 */
 }
+
 
 /**
  * @brief     update the gram data
@@ -428,11 +431,15 @@ uint8_t ssd1306_gram_update(ssd1306_handle_t *handle)
         }
         for (n = 0; n < 128; n++)                                                                     /* write 128 */
         {
-            if (a_ssd1306_write_byte(handle, handle->gram[n][i], SSD1306_DATA) != 0)                  /* write data */
+            if (handle->gram[n][i][1] == 1)
             {
-                handle->debug_print("ssd1306: write byte failed.\n");                                 /* write byte failed */
-                
-                return 1;                                                                             /* return error */
+                handle->gram[n][i][1] = 0; 
+                if (a_ssd1306_write_byte(handle, handle->gram[n][i][0], SSD1306_DATA) != 0)                  /* write data */
+                {
+                    handle->debug_print("ssd1306: write byte failed.\n");                                 /* write byte failed */
+                    
+                    return 1;                                                                             /* return error */
+                }
             }
         }
     }
@@ -480,11 +487,11 @@ uint8_t ssd1306_write_point(ssd1306_handle_t *handle, uint8_t x, uint8_t y, uint
     temp = 1 << bx;                                                                                            /* set data */
     if (data != 0)                                                                                             /* check the data */
     {
-        handle->gram[x][pos] |= temp;                                                                          /* set 1 */
+        handle->gram[x][pos][0] |= temp;                                                                          /* set 1 */
     }
     else
     {
-        handle->gram[x][pos] &= ~temp;                                                                         /* set 0 */
+        handle->gram[x][pos][0] &= ~temp;                                                                         /* set 0 */
     }
     if (a_ssd1306_write_byte(handle, SSD1306_CMD_PAGE_ADDR + pos, SSD1306_CMD) != 0)                           /* write page addr */
     {
@@ -504,7 +511,7 @@ uint8_t ssd1306_write_point(ssd1306_handle_t *handle, uint8_t x, uint8_t y, uint
         
         return 1;                                                                                              /* return error */
     }
-    if (a_ssd1306_write_byte(handle, handle->gram[x][pos], SSD1306_DATA) != 0)                                 /* write data */
+    if (a_ssd1306_write_byte(handle, handle->gram[x][pos][0], SSD1306_DATA) != 0)                                 /* write data */
     {
         handle->debug_print("ssd1306: write byte failed.\n");                                                  /* write byte failed */
         
@@ -554,7 +561,7 @@ uint8_t ssd1306_read_point(ssd1306_handle_t *handle, uint8_t x, uint8_t y, uint8
     pos = y / 8;                                                     /* get y page */
     bx = y % 8;                                                      /* get y point */
     temp = 1 << bx;                                                  /* set data */
-    if ((handle->gram[x][pos] & temp) != 0)                          /* get data */
+    if ((handle->gram[x][pos][0] & temp) != 0)                          /* get data */
     {
         *data = 1;                                                   /* set 1 */
     }
@@ -606,11 +613,11 @@ uint8_t ssd1306_gram_write_point(ssd1306_handle_t *handle, uint8_t x, uint8_t y,
     temp = 1 << bx;                                                  /* set data */
     if (data != 0)                                                   /* if 1 */
     {
-        handle->gram[x][pos] |= temp;                                /* set 1 */
+        handle->gram[x][pos][0] |= temp;                                /* set 1 */
     }
     else
     {
-        handle->gram[x][pos] &= ~temp;                               /* set 0 */
+        handle->gram[x][pos][0] &= ~temp;                               /* set 0 */
     }
   
     return 0;                                                        /* success return 0 */
@@ -654,7 +661,7 @@ uint8_t ssd1306_gram_read_point(ssd1306_handle_t *handle, uint8_t x, uint8_t y, 
     pos = y / 8;                                                     /* get y page */
     bx = y % 8;                                                      /* get y point */
     temp = 1 << bx;                                                  /* set data */
-    if ((handle->gram[x][pos] & temp) != 0)                          /* get data */
+    if ((handle->gram[x][pos][0] & temp) != 0)                          /* get data */
     {
         *data = 1;                                                   /* set 1 */
     }
@@ -1012,8 +1019,7 @@ uint8_t ssd1306_init(ssd1306_handle_t *handle)
         
         return 6;                                                                   /* return error */
     }
-    handle->inited = 1;                                                             /* flag inited */
-    
+    handle->inited = 1;    
     return 0;                                                                       /* success return 0 */
 }
 

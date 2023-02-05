@@ -234,7 +234,7 @@ typedef struct ssd1306_handle_s
     uint8_t inited;                                                                     /**< inited flag */
     uint8_t iic_addr;                                                                   /**< iic address */
     uint8_t iic_spi;                                                                    /**< iic spi type */
-    uint8_t gram[128][8];                                                               /**< gram buffer */
+    uint8_t gram[128][8][2];                                                            /**< gram buffer */
 } ssd1306_handle_t;
 
 /**
