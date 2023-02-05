@@ -21,7 +21,7 @@
 // Timer Variable
 #define TIMEOUT 1000 // milliseconds, one second
 
-#define I2C_BUS_AVAILABLE (1)         // I2C Bus available in our Raspberry Pi
+#define I2C_BUS_AVAILABLE (0)         // I2C Bus available in our Raspberry Pi
 #define SLAVE_DEVICE_NAME ("ssd1306") // Device and Driver Name
 #define SSD1306_SLAVE_ADDR (0x3C)     // SSD1306 OLED Slave Address
 
@@ -66,26 +66,26 @@ static struct task_struct *thread_st;
 /* Function executed by kernel thread */
 static int update_display(void *unused)
 {
-    char str[100];
+    char date_str[20];
+    char time_str[20];
     struct rtc_time t;
     ssd1306_basic_clear();
-    int count = 0;
+    //int count = 0;
     while (!kthread_should_stop())
     {
-        /* do your work */
-        /* do your timer stuff here */
-
-        //t = rtc_ktime_to_tm(ktime_get_real());
-        //sprintf(str, "%ptRs", &t);
-        sprintf(str, "%d", count++);
+        t = rtc_ktime_to_tm(ktime_get_real());
+        // Format date string
+        snprintf(date_str, 20, "%04d-%02d-%02d", t.tm_year + 1900, t.tm_mon + 1, t.tm_mday);
+        // Format time string
+        snprintf(time_str, 20, "%02d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
         // sprintf(str, "Conteggio: %d\n", count);
-        pr_info("%s", str);
+        pr_info("%s %s", date_str, time_str);
         // ssd1306_basic_clear();
         // pr_info("%d",ssd1306_basic_string(0,15,str,strlen(str)+1,0xFFFF, SSD1306_FONT_12));
-        ssd1306_basic_string(0, 0, str, strlen(str), 0xFFFF, SSD1306_FONT_12);
+        ssd1306_basic_string(0, 0, date_str, strlen(date_str), 1, SSD1306_FONT_12);
+        ssd1306_basic_string(0, 15, time_str, strlen(time_str), 1, SSD1306_FONT_24);
         //ssd1306_basic_string(0, 0, "ciao", 4, 1, SSD1306_FONT_12);
-        msleep(200);
-        //mdelay(200);
+        //msleep(200);
     }
     return 0;
 }
@@ -124,12 +124,12 @@ static void __exit ssd1306_module_exit(void)
 static int ssd1306_probe(struct i2c_client *client,
                          const struct i2c_device_id *id)
 {
-    int ret;
+    //int ret;
     printk(KERN_INFO "SSD1306 OLED display found at address 0x%x\n", client->addr);
     if(ssd1306_basic_init(SSD1306_INTERFACE_IIC, SSD1306_ADDR_SA0_0))
         goto init_err;
     
-    char welcome[50] = "Benvenuti By WuagliunzEmbedded";
+    char welcome[] = "WuagliunzEmbedded";
     ssd1306_basic_string(0, 15, welcome, strlen(welcome), 1, SSD1306_FONT_12);
 
     printk(KERN_INFO "Creating Thread\n");
