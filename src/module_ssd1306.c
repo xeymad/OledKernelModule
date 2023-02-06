@@ -20,6 +20,7 @@
 #define I2C_BUS_AVAILABLE (1)         // I2C Bus available in our Raspberry Pi
 #define SLAVE_DEVICE_NAME ("ssd1306") // Device and Driver Name
 #define SSD1306_SLAVE_ADDR (0x3C)     // SSD1306 OLED Slave Address
+#define WELCOME "Benvenuti By WuagliunzEmbedded"
 
 static struct i2c_adapter *ssd1306_adapter = NULL; // I2C Adapter Structure
 extern struct i2c_client *ssd1306_client;          // I2C Client Structure (In our case it is OLED)
@@ -55,12 +56,10 @@ static struct task_struct *kthread_update;
 static int update_display(void *unused)
 {
     stopped = false;
-    char str[100];
     char date_str[20];
     char time_str[20];
     struct rtc_time t;
     ssd1306_basic_clear();
-    int count = 0;
     while (!kthread_should_stop())
     {
         t = rtc_ktime_to_tm(ktime_get_real() + 3600000000000);
@@ -68,8 +67,8 @@ static int update_display(void *unused)
         snprintf(date_str, 20, "%04d-%02d-%02d", t.tm_year + 1900, t.tm_mon + 1, t.tm_mday);
         snprintf(time_str, 20, "%02d:%02d:%02d", t.tm_hour, t.tm_min, t.tm_sec);
 
-        if (ssd1306_basic_string(50, 0, date_str, strlen(date_str), 1, SSD1306_FONT_12) ||
-            ssd1306_basic_string(50, 15, time_str, strlen(time_str), 1, SSD1306_FONT_24))
+        if (ssd1306_basic_string(0, 0, date_str, strlen(date_str), 1, SSD1306_FONT_12) ||
+            ssd1306_basic_string(0, 15, time_str, strlen(time_str), 1, SSD1306_FONT_24))
         {
             pr_info("Display error!!!");
             goto device_removed;
@@ -117,13 +116,11 @@ static int __init ssd1306_module_init(void)
 /* Function to initialize the SSD1306 OLED display */
 static int ssd1306_probe(struct i2c_client *client, const struct i2c_device_id *id)
 {
-    int ret;
     printk(KERN_INFO "SSD1306 OLED display found at address 0x%x\n", client->addr);
     if (ssd1306_basic_init(SSD1306_INTERFACE_IIC, SSD1306_ADDR_SA0_0))
         goto init_err;
 
-    char welcome[50] = "Benvenuti By WuagliunzEmbedded";
-    ssd1306_basic_string(0, 15, welcome, strlen(welcome), 1, SSD1306_FONT_12);
+    ssd1306_basic_string(0, 15, WELCOME, strlen(WELCOME), 1, SSD1306_FONT_12);
 
 
     printk(KERN_INFO "Creating Thread\n");
