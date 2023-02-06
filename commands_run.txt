@@ -6,4 +6,3 @@ sudo insmod module_ssd1306.ko
 
 # RMMOD
 sudo rmmod module_ssd1306.ko driver_ssd1306_basic.ko driver_ssd1306.ko driver_ssd1306_interface.ko
-
