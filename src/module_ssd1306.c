@@ -1,23 +1,13 @@
 #include <linux/module.h>
 #include <linux/i2c.h>
 #include <linux/kernel.h>
-#include <linux/init.h>
-#include <linux/kdev_t.h>
-#include <linux/fs.h>
-#include <linux/of.h>
-#include <linux/slab.h>
-#include <linux/cdev.h>
-#include <linux/device.h>
-#include <linux/timer.h>
-#include <linux/jiffies.h>
-#include <linux/err.h>
 #include <linux/kthread.h>
 #include <linux/delay.h>
 #include <linux/time.h>
 #include <linux/rtc.h>
 #include "driver_ssd1306_basic.h"
 
-#define I2C_BUS_AVAILABLE (1)           // I2C Bus available in our Raspberry Pi
+#define I2C_BUS_AVAILABLE (0)           // I2C Bus available in our Raspberry Pi
 #define SLAVE_DEVICE_NAME ("ssd1306")   // Device and Driver Name
 #define SSD1306_SLAVE_ADDR (0x3C)       // SSD1306 OLED Slave Address
 #define WELCOME "RTSA_Project"          // Welcome string
