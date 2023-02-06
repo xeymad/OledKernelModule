@@ -142,7 +142,7 @@ uint8_t ssd1306_interface_spi_write_cmd(uint8_t *buf, uint16_t len)
  */
 void ssd1306_interface_delay_ms(uint32_t ms)
 {
-    mdelay(1000);
+    mdelay(ms);
 }
 
 /**
